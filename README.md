@@ -1,4 +1,4 @@
-# Introduction to `ipcwqrPIC` R package
+# Introduction to `ipcwlsPIC` R package
 
 
 ## Introduction
@@ -68,6 +68,6 @@ dependent covariates. Biostatistics. 18 (1), 132–146.
 PICBayes: Bayesian Models for Partly Interval-Censored Data. R package. 
 https://CRAN.R-project.org/package=PICBayes.
 
-* Kim, Y., Choi, T., Park, S., Choi, S. and Bandyopadhyay, D. (2023+). 
-Inverse weighted quantile regression with partially interval-censored data.
-*Submitted to SMMR*.
+* Kim, Y., Choi, T. (2023+). 
+Inverse weighted linear regression with partially interval-censored data.
+*Submitted to JKSS*.
