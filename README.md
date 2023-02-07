@@ -47,6 +47,21 @@ d = with(data.frame(mCRC), data.frame(U = ifelse(y==0,R,L),
 ));
 L=(log(d$U));R=log(d$V); delta=d$delta
 x = cbind(d$x1,d$x2); id=d$id;  tau=0.1;
+ipcwlsPIC::picwls(L,R,delta,x=x)
+#>           coefficients       se   pvalue  lower bd upper bd
+#> Intercept     3.762554 0.289753 0.000000  3.194637 4.330470
+#> 2             0.154889 0.251553 0.269037 -0.338156 0.647933
+#> 3             0.386410 0.281427 0.084870 -0.165188 0.938008
+ipcwlsPIC::picwls(L,R,delta,x=x,id=id,index = 1)
+#>           coefficients       se   pvalue  lower bd upper bd
+#> Intercept     3.762554 0.270516 0.000000  3.232342 4.292765
+#> 2             0.154889 0.250467 0.268157 -0.336028 0.645805
+#> 3             0.386410 0.278151 0.082384 -0.158765 0.931585
+ipcwlsPIC::picwls(L,R,delta,x=x,wttype="Beran",hlimit=0.1,id=id,index = 1)
+#>           coefficients       se   pvalue  lower bd upper bd
+#> Intercept     3.720919 0.277275 0.000000  3.177461 4.264377
+#> 2             0.126217 0.263914 0.316237 -0.391055 0.643488
+#> 3             0.402683 0.288906 0.081686 -0.163573 0.968939
 ```
 
 
