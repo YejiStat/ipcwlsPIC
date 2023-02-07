@@ -2,15 +2,14 @@
 
 
 ## Introduction
-```{R}
 `ipcwlsPIC` is the R package to fit a new inverse-probability censoring weighted (IPCW) estimating procedure for censored linear regression when the data are partially interval-censored that include doubly-censored (DC) data and partly interval-censored (PIC) and possibly correlated within the same cluster.
 Let $T$ and $X$ be the event time of interest and its related $p$-vector of covariates, respectively.
 Our main objective is to estimate 
 the $p$-dimensional linear coefficient vector ${\boldsymbol{\beta}}_0$
 in the following linear linear regression model:
-$$
-T_i = {\bf x}_i^T {\boldsymbol{\beta}}_0 + e_i,\quad i=1, \ldots ,n, 
-$$
+
+$$T_i = {\bf x}_i^T {\boldsymbol{\beta}}_0 + e_i,\quad i=1, \ldots ,n, $$
+
 where $e_i$ is the random error.
 When the data are subject to partially interval-censoring, 
 left and right endpoints of the censoring time, $L$ and $R$,
@@ -18,7 +17,7 @@ are observed instead of $T$ such that $T\in(L,R)$.
 Note that double-censoring  can also  be viewed as 
 a special case of partly interval-censoring, 
 i.e., $T$ is left-censored if $L=0$ and right-censored if $R=\infty$. 
-```
+
 
 ## Description
 This R package `ipcwlsPIC` implements an inverse-probability censoring weighted (IPCW) procedure for censored quantile regression for (cluster-correlated) partially interval-censored data, which includes both double-censoring and partially interval-censoring.
