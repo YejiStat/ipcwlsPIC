@@ -75,10 +75,6 @@ ipcwlsPIC::picwls(L,R,delta,x=x,wttype="Beran",hlimit=0.1,id=id,index = 1)
 * Gorfine, M., Y. Goldberg, and Y. Ritov (2017). A quantile regression model for failure-time data with time-
 dependent covariates. Biostatistics. 18 (1), 132–146.
 
-* Chiou, S. H., Kang, S. and Yan, J. (2015). Rank-based estimating equations with general weight for accelerated failure time models: an induced smoothing approach. Statistics in Medicine 34(9): 1495–-1510.
-
-* Zeng, D. and D. Lin (2008). Efficient resampling methods for nonsmooth estimating functions. Biostatistics 9 (2), 355–363.
-
 * Pan, C. (2021). 
 PICBayes: Bayesian Models for Partly Interval-Censored Data. R package. 
 https://CRAN.R-project.org/package=PICBayes.
