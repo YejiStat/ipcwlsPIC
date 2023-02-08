@@ -43,7 +43,7 @@ d = with(data.frame(mCRC), data.frame(U = ifelse(y==0,R,L),
                                                         IC == 1 ~ 0)
 ));
 L=(log(d$U));R=log(d$V); delta=d$delta
-x = cbind(d$x1,d$x2); id=d$id;  tau=0.1;
+x = cbind(d$x1,d$x2); id=d$id;
 ipcwlsPIC::picwls(L,R,delta,x=x)
 #>           coefficients       se   pvalue  lower bd upper bd
 #> Intercept     3.762554 0.289753 0.000000  3.194637 4.330470
