@@ -8,7 +8,7 @@ Our main objective is to estimate
 the $p$-dimensional linear coefficient vector ${\boldsymbol{\beta}}_0$
 in the following linear linear regression model:
 
-$$T_i = {\bf x}_i^T {\boldsymbol{\beta}}_0 + e_i,\quad i=1, \ldots ,n, $$
+$$T_i = {\bf x}_i^T {\boldsymbol{\beta}}_0 + \epsilon_i,\quad i=1, \ldots ,n, $$
 
 where $e_i$ is the random error.
 When the data are subject to partially interval-censoring, 
