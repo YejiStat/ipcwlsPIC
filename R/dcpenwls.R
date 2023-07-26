@@ -152,28 +152,6 @@ dcpenwls=function(L,R,T,delta,x,estimation=NULL,beta0,type,wttype="KM",hlimit=NU
     ww
   }
   
-  # DCls=function(L,R,T,x,delta,ww,eta,type,lambda=NULL){
-  # 
-  #   L = pmax(L,1e-8); R=pmax(R,1e-8); Y=ifelse(L<R, pmin(R,pmax(L,T)), pmax(R,pmax(L,T)) );n=length(Y)
-  #   if(type=="nonpenalty"){
-  #     as.numeric(lm(Y~x, weights = ww*eta)$coef)[-1] #beta1, beta2
-  #   }else if(type=="oracle"){
-  #     as.numeric(lm(Y~x, weights = ww*eta)$coef)[-1] #beta1, beta2
-  #   }else if(type=="alasso"){
-  #     wtx = (ww*eta*x);  wtY = (ww*eta*Y);
-  #     best_ridge_coef = DCls(L,R,T,x,delta,ww,eta,type = "lasso",lambda = lambda)
-  #     penalty_factor = 1 / abs(best_ridge_coef)
-  #     as.numeric(ncvreg(wtx, wtY, penalty="lasso", lambda=lambda, penalty.factor=penalty_factor)$beta)[-1] #beta1, beta2
-  #   }
-  #   else{
-  #     wtx = (ww*eta*x);  wtY = (ww*eta*Y)
-  #     best_ridge_coef = DCls(L,R,T,x,delta,ww,eta,type = "nonpenalty")
-  #     penalty_factor = 1 / abs(best_ridge_coef)
-  #     as.numeric(ncvreg(wtx, wtY, penalty=type, lambda=lambda, penalty.factor=penalty_factor)$beta)[-1] #beta1, beta2
-  #   }
-  # }
-  
-  
   
   DCls=function(L,R,T,x,delta,ww,eta,type,lambda=NULL,old_beta=NULL){
     options(warn=-1)
