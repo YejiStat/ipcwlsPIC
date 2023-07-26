@@ -38,7 +38,7 @@ NULL
 #' 
 #' Ishwaran, H., U. B. Kogalur, E. H. Blackstone, and M. S. Lauer (2008). Random survival forests. The annals of applied statistics. 2 (3), 841–860.
 #' 
-#' Kim, Y., Choi, T. (2023+). On weighted-least squares regression with partially interval-censored data.
+#' Kim, Y., Choi, S. (2023+). On weighted-least squares regression with partially interval-censored data.
 #' 
 #'
 #' @examples
