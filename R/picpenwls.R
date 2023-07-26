@@ -85,7 +85,7 @@ NULL
 #'
 
 
-picpenwls=function(U,V,delta,x,estimation=NULL,beta0,type="wls",wttype="KM",hlimit=NULL,id=NULL,index=NULL,nonzero.index=NULL,lamb.len=200,maxit=100,tol=1e-2){
+picpenwls=function(U,V,delta,x,estimation=NULL,beta0,type="wls",wttype="KM",hlimit=0.1,id=NULL,index=NULL,nonzero.index=NULL,lamb.len=200,maxit=100,tol=1e-2){
   library(tidyverse)
   library(extRemes)
   library(glmnet)
