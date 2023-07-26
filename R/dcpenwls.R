@@ -59,8 +59,7 @@ NULL
 #' }
 #' @export
 #'
-#'
-#'
+
 
 
 dcpenwls=function(L,R,T,delta,x,estimation=NULL,beta0,type,wttype="KM",hlimit=NULL,id=NULL,index=NULL,nonzero.index=NULL,lamb.len=200,maxit=100,tol=1e-10){
