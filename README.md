@@ -44,7 +44,7 @@ d = with(data.frame(mCRC), data.frame(U = ifelse(y==0,R,L),
 ));
 L=(log(d$U));R=log(d$V); delta=d$delta
 x = cbind(d$x1,d$x2); id=d$id;
-ipcwlsPIC::picwls(L,R,delta,x=x)
+ipcwlsPIC::picpenwls(L,R,delta,x=x,h=0.1,wttype="KM")
 #>           coefficients       se   pvalue  lower bd upper bd
 #> Intercept     3.762554 0.289753 0.000000  3.194637 4.330470
 #> 2             0.154889 0.251553 0.269037 -0.338156 0.647933
@@ -64,13 +64,10 @@ ipcwlsPIC::picwls(L,R,delta,x=x,id=id,index = 1)
 
 * Ishwaran, H., U. B. Kogalur, E. H. Blackstone, and M. S. Lauer (2008). Random survival forests. The annals of applied statistics. 2 (3), 841–860.
 
-* Gorfine, M., Y. Goldberg, and Y. Ritov (2017). A quantile regression model for failure-time data with time-
-dependent covariates. Biostatistics. 18 (1), 132–146.
-
 * Pan, C. (2021). 
 PICBayes: Bayesian Models for Partly Interval-Censored Data. R package. 
 https://CRAN.R-project.org/package=PICBayes.
 
 * Kim, Y., Choi, T. (2023+). 
-Inverse weighted linear regression with partially interval-censored data.
-*Submitted to JKSS*.
+Kim, Y., Choi, T. (2023+). On weighted-least squares regression with partially interval-censored data.
+*Scheduled to aaa*.
