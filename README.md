@@ -68,6 +68,6 @@ ipcwlsPIC::picwls(L,R,delta,x=x,id=id,index = 1)
 PICBayes: Bayesian Models for Partly Interval-Censored Data. R package. 
 https://CRAN.R-project.org/package=PICBayes.
 
-* Kim, Y., Choi, T. (2023+). 
+* Kim, Y., Choi, S. (2023+). 
 Kim, Y., Choi, T. (2023+). On weighted-least squares regression with partially interval-censored data.
 *Scheduled to aaa*.
