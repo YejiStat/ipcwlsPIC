@@ -188,45 +188,6 @@ picpenwls=function(U,V,delta,x,estimation=NULL,beta0,type="wls",wttype="KM",hlim
   }
   
   
-  # PICls=function(U,V,x,delta,ww,eta,type,lambda,old_beta){
-  #   options(warn=-1)
-  #   U = pmax(U,1e-8); V = pmax(V,1e-8); Y=pmax(ifelse(delta==0,V,U),1e-8); n=length(Y); 
-  #   if(type=="nonpenalty"){
-  #     # as.numeric(lm(Y~x, weights = ww*eta)$coef) #intc, beta1, beta2
-  #     as.numeric(lm(Y~x, weights = ww*eta)$coef)[-1] #beta1, beta2
-  #   }else if(type=="oracle"){
-  #     as.numeric(lm(Y~x, weights = ww*eta)$coef)[-1] #beta1, beta2
-  #   }else if(type=="alasso"){
-  #     wtx = (ww*eta*x);  wtY = (ww*eta*Y);
-  #     # ridge1_cv <- cv.glmnet(x = wtx, y = wtY,
-  #     #                        ## type.measure: loss to use for cross-validation.
-  #     #                        type.measure = "mse",
-  #     #                        ## K = 10 is the default.
-  #     #                        nfold = 10,
-  #     #                        ## ‘alpha = 1’ is the lasso penalty, and ‘alpha = 0’ the ridge penalty.
-  #     #                        alpha = 0)
-  #     # best_ridge_coef <- as.numeric(coef(ridge1_cv, s = ridge1_cv$lambda.min))[-1]
-  #     best_ridge_coef = PICls(U=U,V=V,delta=delta,x=x,ww=ww,eta=eta,type = "lasso",lambda = lambda)
-  #     penalty_factor = 1 / abs(best_ridge_coef)
-  #     as.numeric(ncvreg(wtx, wtY, penalty="lasso", lambda = lambda, penalty.factor=penalty_factor)$beta)[-1] #beta1, beta2  
-  #   }else{
-  #     wtx = (ww*eta*x);  wtY = (ww*eta*Y)
-  #     # ridge1_cv <- cv.glmnet(x = wtx, y = wtY,
-  #     # ## type.measure: loss to use for cross-validation.
-  #     # type.measure = "mse",
-  #     # ## K = 10 is the default.
-  #     # nfold = 10,
-  #     # ## ‘alpha = 1’ is the lasso penalty, and ‘alpha = 0’ the ridge penalty.
-  #     # alpha = 0)
-  #     # best_ridge_coef <- as.numeric(coef(ridge1_cv, s = ridge1_cv$lambda.min))[-1]
-  #     best_ridge_coef = PICls(U=U,V=V,delta=delta,x=x,ww=ww,eta=eta,type="nonpenalty")
-  #     penalty_factor = 1 / abs(best_ridge_coef)
-  #     as.numeric(ncvreg(wtx, wtY, penalty=type, lambda = lambda, penalty.factor=penalty_factor)$beta)[-1] #beta1, beta2  
-  #     # fit = ncvreg(wtx, wtY, penalty=type, penalty.factor=penalty_factor, standardize=TRUE)
-  #     # fit$beta
-  #   }
-  # }
-  
   PICls=function(U,V,x,delta,ww,eta,type,lambda,old_beta=NULL){
     options(warn=-1)
     U = pmax(U,1e-8); V = pmax(V,1e-8); Y=pmax(ifelse(delta==3,V,U),1e-8); n=length(U); p=ncol(x);
