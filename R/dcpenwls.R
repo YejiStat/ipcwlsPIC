@@ -55,14 +55,14 @@ NULL
 #')
 #'L=L; R=R; T=T; delta=delta; x=cbind(x1,x2); tau=0.3
 #'dcwls(L,R,T,delta,x)
-#'dcpenwls(L,R,T,delta,x=x,h=0.1,wttype="KM")
+#'dcpenwls(L,R,T,delta,x=x,hlimit=0.1,wttype="KM")
 #' }
 #' @export
 #'
 
 
 
-dcpenwls=function(L,R,T,delta,x,estimation=NULL,beta0,type,wttype="KM",hlimit=NULL,id=NULL,index=NULL,nonzero.index=NULL,lamb.len=200,maxit=100,tol=1e-10){
+dcpenwls=function(L,R,T,delta,x,estimation=NULL,beta0,type,wttype="KM",hlimit=0.1,id=NULL,index=NULL,nonzero.index=NULL,lamb.len=200,maxit=100,tol=1e-10){
   library(tidyverse)
   library(extRemes)
   library(glmnet)
