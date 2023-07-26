@@ -20,7 +20,7 @@ i.e., $T$ is left-censored if $L=0$ and right-censored if $R=\infty$.
 
 
 ## Description
-This R package `ipcwlsPIC` implements an inverse-probability censoring weighted (IPCW) procedure for censored quantile regression for (cluster-correlated) partially interval-censored data, which includes both double-censoring and partially interval-censoring.
+This R package `ipcwlsPIC` implements an inverse-probability censoring weighted (IPCW) procedure for censored linear regression for (cluster-correlated) partially interval-censored data, which includes both double-censoring and partially interval-censoring.
 
 Vignettes is available in [here](http://htmlpreview.github.io/?https://github.com/YejiStat/ipcwlsPIC/blob/main/vignettes/ipcwlsPIC.html).
 
