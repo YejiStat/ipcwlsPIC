@@ -83,9 +83,7 @@ NULL
 #' @export
 #'
 #'
-#'
 
-library(tidyverse)
 
 picpenwls=function(U,V,delta,x,estimation=NULL,beta0,type="wls",wttype="KM",hlimit=NULL,id=NULL,index=NULL,nonzero.index=NULL,lamb.len=200,maxit=100,tol=1e-2){
   library(tidyverse)
@@ -100,8 +98,6 @@ picpenwls=function(U,V,delta,x,estimation=NULL,beta0,type="wls",wttype="KM",hlim
   wtpicft=function(U,V,delta){
     
     U = pmax(U,1e-8); V = pmax(V,1e-8); Y=pmax(ifelse(delta==3,V,U),1e-8); n=length(U);
-    # kml = survfit(Surv(U,delta!=2,type="left")~1)
-    # kmr = survfit(Surv(V,delta!=3) ~ 1)
     kml = survfit(Surv(-Y,delta==2)~1)
     kmr = survfit(Surv(Y,delta==3)~1)
     
@@ -122,8 +118,6 @@ picpenwls=function(U,V,delta,x,estimation=NULL,beta0,type="wls",wttype="KM",hlim
   Vwtpicft=function(U,V,delta){
     
     U = pmax(U,1e-8); V = pmax(V,1e-8); Y=pmax(ifelse(delta==3,V,U),1e-8); n=length(U);
-    # kml = survfit(Surv(U,delta!=2,type="left")~1)
-    # kmr = survfit(Surv(V,delta!=3) ~ 1)
     kml = survfit(Surv(-Y,delta==2)~1)
     kmr = survfit(Surv(Y,delta==3)~1)
     
