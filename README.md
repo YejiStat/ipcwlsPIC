@@ -44,16 +44,18 @@ d = with(data.frame(mCRC), data.frame(U = ifelse(y==0,R,L),
 ));
 L=(log(d$U));R=log(d$V); delta=d$delta
 x = cbind(d$x1,d$x2); id=d$id;
-ipcwlsPIC::picpenwls(L,R,delta,x=x,hlimit=0.1,wttype="KM")
-#>           coefficients       se   pvalue  lower bd upper bd
-#> Intercept     3.762554 0.289753 0.000000  3.194637 4.330470
-#> 2             0.154889 0.251553 0.269037 -0.338156 0.647933
-#> 3             0.386410 0.281427 0.084870 -0.165188 0.938008
-ipcwlsPIC::picwls(L,R,delta,x=x,id=id,index = 1)
-#>           coefficients       se   pvalue  lower bd upper bd
-#> Intercept     3.762554 0.270516 0.000000  3.232342 4.292765
-#> 2             0.154889 0.250467 0.268157 -0.336028 0.645805
-#> 3             0.386410 0.278151 0.082384 -0.158765 0.931585
+ipcwlsPIC::picpenwls(U=L,V=R,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty")$res
+#>   coefficients       se   pvalue 95% lower bd 95% upper bd
+#> 1     0.159885 0.053671 0.001446     0.054689     0.265081
+#> 2     0.390119 0.052705 0.000000     0.286816     0.493422
+ipcwlsPIC::picpenwls(U=L,V=R,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",index = 1)$res
+#>   coefficients       se   pvalue 95% lower bd 95% upper bd
+#> 1     0.159885 0.053671 0.001446     0.054689     0.265081
+#> 2     0.390119 0.052705 0.000000     0.286816     0.493422
+ipcwlsPIC::picpenwls(U=L,V=R,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",wttype="Beran",hlimit=0.1,id=id,index = 1)$res
+#>   coefficients       se pvalue 95% lower bd 95% upper bd
+#> 1     0.126141 0.022284      0     0.082465     0.169817
+#> 2     0.403022 0.021959      0     0.359982     0.446061
 ```
 
 
