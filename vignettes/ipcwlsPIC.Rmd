@@ -78,10 +78,10 @@ x = cbind(x1,x2)
 T = 2 + x1 + x2 + rnorm(n)
 U = (1 - 0.25*x1)*runif(n, -6, 5)
 V = U + (1 - 0.1*x2)*runif(n, 6, 20)
-U = exp(dplyr::case_when(TRUE ~ T, T>V ~ V, T<U ~ -Inf))
-V = exp(dplyr::case_when(TRUE ~ T, T>V ~ Inf, T<U ~ U))
-delta = ifelse(U==V, 1, 0)
-ipcwlsPIC::picwls(L=V,R=U,delta=delta,x=x)
+U = exp(dplyr::case_when(TRUE ~ T, T>V ~ V, T<U ~ -Inf)); U=log(U)
+V = exp(dplyr::case_when(TRUE ~ T, T>V ~ Inf, T<U ~ U)); V=log(V)
+delta = ifelse(U==V, 1, 4); table(delta)
+ipcwlsPIC::picpenwls(U=U,V=V,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty")$res
 ```
 
 We posit two estimating methods, ipcw estimating method and doubly robust ipcw estimating method, which can be conducted by specifying estimation = NULL and estimation = "DR", respectively.
@@ -100,12 +100,12 @@ delta=case_when(
  TRUE ~ 1 #observed
 )
 L=L; R=R; T=T; delta=delta; x=cbind(x1,x2);
-ipcwlsPIC::dcwls(L,R,T,delta,x)
-ipcwlsPIC::dcwls(L,R,T,delta,x,wttype = "Beran", hlimit = 0.1)
-ipcwlsPIC::dcwls(L,R,T,delta,x,wttype = "Ishwaran")
+ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty")$res
+ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",wttype = "Beran", hlimit = 0.1)$res
+ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",wttype = "Ishwaran")$res
 ```
 
-We can choose one of three weighting types, the parametric KM estimating method, Beran's nonparametric KM estimating method, and Ishwaran's nonparametric survival random forests estimating method which can be accessible by using wttype="param", wttype="Beran" and wttype="Ishwaran", respectively.
+We can choose one of three weighting types, the nonparametric KM estimating method, Beran's nonparametric KM estimating method, and Ishwaran's nonparametric survival random forests estimating method which can be accessible by using wttype="KM", wttype="Beran" and wttype="Ishwaran", respectively.
 
 Finally, we cover multivariate doubly-censored (MVDC) data with normal random error, which is one of MVDC data simulation setting of Kim et al. (2023+).
 
@@ -129,8 +129,8 @@ delta=case_when(
     T>R ~ 2,
     TRUE ~ 1 #observed
   )
-ipcwlsPIC::dcwls(L=L,R=R,T=T,delta=delta,x=x,wttype="Param",id=NULL)
-ipcwlsPIC::dcwls(L=L,R=R,T=T,delta=delta,x=x,wttype="Param",id=id,index = 1)
+ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",wttype="KM",id=NULL)$res
+ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",wttype="KM",id=id,index = 1)$res
 ```
 
 In real data analysis, we apply our proposed method to the multivariate clustered PIC data using a phase 3 metastatic colorectal cancer clinical trial. This dataset is accessible for data(mCRC) in the PICBayes R package (Pan, 2021).
@@ -153,9 +153,9 @@ d = with(data.frame(mCRC), data.frame(U = ifelse(y==0,R,L),
 ));
 L=(log(d$U));R=log(d$V); delta=d$delta
 x = cbind(d$x1,d$x2); id=d$id;
-ipcwlsPIC::picwls(L,R,delta,x=x)
-ipcwlsPIC::picwls(L,R,delta,x=x,id=id,index = 1)
-ipcwlsPIC::picwls(L,R,delta,x=x,wttype="Beran",hlimit=0.1,id=id,index = 1)
+ipcwlsPIC::picpenwls(U=L,V=R,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty")$res
+ipcwlsPIC::picpenwls(U=L,V=R,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",index = 1)$res
+ipcwlsPIC::picpenwls(U=L,V=R,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",wttype="Beran",hlimit=0.1,id=id,index = 1)$res
 ```
 
 
