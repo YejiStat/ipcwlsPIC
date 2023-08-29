@@ -361,7 +361,7 @@ also be viewed as a special case of partly interval-censoring, i.e.,
 <div id="usages" class="section level2">
 <h2>Usages</h2>
 <p>Installation of ipcwlsPIC package can be done by</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="at">repo=</span><span class="st">&quot;YejiStat/ipcwlsPIC&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="at">repo=</span><span class="st">&quot;yejikim1202/ipcwlsPIC&quot;</span>)</span></code></pre></div>
 <p>or</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>base<span class="sc">::</span><span class="fu">require</span>(<span class="st">&quot;ipcwlsPIC&quot;</span>)</span></code></pre></div>
 <p>picrq() function has the following arguments:</p>
@@ -474,7 +474,7 @@ PICBayes R package (Pan, 2021).</p>
 <span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>                                      <span class="at">x2=</span> <span class="fu">case_when</span>(KRAS_C <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
 <span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>                                                    KRAS_C <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="dv">0</span>),</span>
 <span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>                                      <span class="at">delta =</span> <span class="fu">case_when</span>(IC <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>                                                        IC <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="dv">0</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>                                                        IC <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="dv">4</span>)</span>
 <span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>));</span>
 <span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>L<span class="ot">=</span>(<span class="fu">log</span>(d<span class="sc">$</span>U));R<span class="ot">=</span><span class="fu">log</span>(d<span class="sc">$</span>V); delta<span class="ot">=</span>d<span class="sc">$</span>delta</span>
 <span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">cbind</span>(d<span class="sc">$</span>x1,d<span class="sc">$</span>x2); id<span class="ot">=</span>d<span class="sc">$</span>id;</span>
