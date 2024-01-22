@@ -2,70 +2,72 @@
 % Please edit documentation in R/picpenwls.R
 \name{picpenwls}
 \alias{picpenwls}
-\title{Fit the interval-censored AFT model with linear regression model}
+\title{Fit the partly interval-censored AFT model with linear regressions}
 \usage{
 picpenwls(
-  U,
-  V,
+  L,
+  R,
   delta,
   x,
-  estimation = NULL,
-  beta0,
-  type = "wls",
+  beta0 = rep(1, ncol(x)),
+  type = "wlse",
   wttype = "KM",
   hlimit = 0.1,
+  contx1.pos = 1,
+  contx2.pos = 1,
+  selection = FALSE,
   id = NULL,
-  index = NULL,
-  nonzero.index = NULL,
-  lamb.len = 200,
-  maxit = 100,
-  tol = 0.01
+  index = 1,
+  maxit = 1000,
+  tol = 0.001
 )
 }
 \arguments{
-\item{U}{left-censoring time, having 0 if left-censored.}
+\item{L}{left-censoring time, having 0 if left-censored.}
 
-\item{V}{right-censoring time, having \code{Inf} if right-censored.}
+\item{R}{right-censoring time, having \code{Inf} if right-censored.}
 
-\item{delta}{censoring indicator, 1: exactly observed; 2: left-censored; 3: right-censored; 4: interval-censored.}
+\item{delta}{censoring indicator, 0: exactly observed; 1: left-censored; 2: right-censored; 3: interval-censored;}
 
 \item{x}{X matrix of baseline covariates.}
 
-\item{estimation}{estimating method of partly interval censored, if estimation="DR", doubly robust estimator is estimated.}
+\item{beta0}{true parameter values, including intercept, with the default being 1 for all parameters."}
 
-\item{type}{penalized estimating method, default is "wls", lasso penalized estimating method as "lasso", elasticnet penalized estimating method as "elasticnet", SCAD penalized estimating method as "SCAD"}
+\item{type}{penalized estimating method, default is "wlse", or "lasso", "alasso", "elastic", "scad" penalties are applicable.}
 
 \item{wttype}{weight estimating method, default is "KM", Beran's nonparametric KM estimating method as "Beran", and  Ishwaran's random survival forests KM estimating method as "Ishwaran".}
 
-\item{hlimit}{bandwidth value, default is NULL.}
+\item{hlimit}{bandwidth value, default is 0.1}
 
-\item{id}{cluster id. If the data does not have clustered structure, set \code{id=NULL}.}
+\item{contx1.pos}{position of the continuous covariate of variable x used in the kernel of the Beran method. The default is 1.}
+
+\item{contx2.pos}{position of the same or another continuous covariate of variable x used in the kernel of the Beran method. The default is 1.}
+
+\item{selection}{Whether to use variable selection method; when using "wlse" type, the variable selection option must be set to FALSE, with the default being FALSE.}
+
+\item{id}{cluster id. If the data does not have clustered structure, must set \code{id=NULL}.}
 
 \item{index}{index of cluster weight, default is 1}
 
-\item{nonzero.index}{index of nonzero position, default is NULL.}
+\item{maxit}{maximum time value of event time T or L and R, default is 100.}
 
-\item{lamb.len}{the length of grid of lambdas, default is NULL.}
-
-\item{maxit}{maximum number of iteration for the log-rank estimator, default is 100.}
-
-\item{tol}{tolerance of iteration for the log-rank estimator, default is 1e-3.}
+\item{tol}{tolerance of the minimum threshold for the calculated weights, default is 1e-3.}
 }
 \value{
-\code{picpenwls} returns a data frame containing at least the following components:
+\code{picwls} returns a data frame containing at least the following components:
 \itemize{
 \item \code{coefficients}: regression estimator.
 \item \code{se}: standard error estimates for \code{est}.
 \item \code{pvalue}: p-value.
-\item \code{95\% lower bd}: lower bound of coefficients under 95\% confidence level.
-\item \code{95% upper bd}: upper bound of coefficients under 95% confidence level.
+\item \code{lower bd}: lower bound of coefficients under 95\% confidence level.
+\item \code{upper bd}: upper bound of coefficients under 95\% confidence level.
 }
 }
 \description{
-Fit inverse weighted linear regression with partially interval-censored data
+Fit inverse weighted linear regression with partly interval-censored data
 }
 \details{
-see Kim et al., (2023+) for detailed method explanation.
+see Kim et al., (2024+) for detailed method explanation.
 }
 \examples{
 \dontrun{
@@ -75,19 +77,17 @@ n = 200
 x1 = runif(n,-1,1)
 x2 = rbinom(n,1,0.43)
 x = cbind(x1,x2)
-T = 2 + x1 + x2 + rnorm(n)
-U = (1 - 0.25*x1)*runif(n, -6, 5)
+T = 4 + x1 + x2 + rnorm(n)
+U = 4 + (1 - 0.25*x1)*runif(n, -6, 5)
 V = U + (1 - 0.1*x2)*runif(n, 6, 20)
 U = exp(dplyr::case_when(TRUE ~ T, T>V ~ V, T<U ~ -Inf))
 V = exp(dplyr::case_when(TRUE ~ T, T>V ~ Inf, T<U ~ U))
-delta = ifelse(U==V, 1, 4)
-tau=0.3
-picpenwls(U=log(U),V=log(V),delta,x=x,h=0.1,wttype="KM")
+delta = ifelse(U==V, 0, 3)
+picwls(L=L,R=R,delta=delta,x=x)
 
 
 # Data example
 library(PICBayes)
-library(tidyverse)
 data("mCRC")
 d = with(data.frame(mCRC), data.frame(U = ifelse(y==0,R,L),
                                       V = ifelse(y==2,L,R),
@@ -99,12 +99,15 @@ d = with(data.frame(mCRC), data.frame(U = ifelse(y==0,R,L),
                                       # Tumor KRAS mutation status: 0 = wild-type, 1 = mutant.
                                       x2= case_when(KRAS_C == 0 ~ 1,
                                                     KRAS_C == 1 ~ 0),
-                                      delta = case_when(IC == 0 ~ 1,
-                                                        IC == 1 ~ 0)
+                                      delta = case_when(IC == 0 ~ 0,
+                                                        IC == 1 ~ 3)
 ));
-U=(log(d$U));V=log(d$V); delta=d$delta
-x = cbind(d$x1,d$x2); id=d$id;  tau=0.1;
-picpenwls(U=U,V=V,delta,x=x,h=0.1,wttype="KM")
+L=d$U;R=d$V; delta=d$delta
+L=(log(d$U));R=log(d$V); delta=d$delta
+x = cbind(d$x1,d$x2); id=d$id;
+picwls(L=L,R=R,delta=delta,x=x)
+picwls(L=L,R=R,delta=delta,x=x,id=id,index=1)
+
 }
 }
 \references{
@@ -112,7 +115,7 @@ Beran, R. (1981). Nonparametric Regression with Randomly Censored Survival Data.
 
 Ishwaran, H., U. B. Kogalur, E. H. Blackstone, and M. S. Lauer (2008). Random survival forests. The annals of applied statistics. 2 (3), 841–860.
 
-Kim, Y., Choi, S. (2023+). On weighted-least squares regression with partially interval-censored data.
+Pak, D., Langohr, K., Ning, J., Cort ́es Mart ́ınez, J., G ́omez Melis, G., and Shen, Y. (2020). Modeling the coronavirus disease 2019 incubation period: impact on quarantine policy. Mathematics, 8(9):1631.
 
-Pan, C. (2021). PICBayes: Bayesian Models for Partly Interval-Censored Data. R package. https://CRAN.R-project.org/package=PICBayes.
+Kim, Y., Park, S., Choi, S. (2024+). On weighted-least squares regression with doubly interval-censored COVID-19 study.
 }

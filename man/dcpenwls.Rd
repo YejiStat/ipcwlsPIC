@@ -2,7 +2,7 @@
 % Please edit documentation in R/dcpenwls.R
 \name{dcpenwls}
 \alias{dcpenwls}
-\title{Fit the doubly interval-censored AFT model with linear regression model}
+\title{Fit the doubly-censored AFT model with linear regression model}
 \usage{
 dcpenwls(
   L,
@@ -10,17 +10,17 @@ dcpenwls(
   T,
   delta,
   x,
-  estimation = NULL,
-  beta0,
-  type,
+  beta0 = rep(1, ncol(x)),
+  type = "wlse",
   wttype = "KM",
   hlimit = 0.1,
+  contx1.pos = 1,
+  contx2.pos = 1,
+  selection = FALSE,
   id = NULL,
-  index = NULL,
-  nonzero.index = NULL,
-  lamb.len = 200,
+  index = 1,
   maxit = 100,
-  tol = 1e-10
+  tol = 0.001
 )
 }
 \arguments{
@@ -30,32 +30,34 @@ dcpenwls(
 
 \item{T}{exactly observed time.}
 
-\item{delta}{censoring indicator, 1: exactly observed; 2: left-censored; 3: right-censored;}
+\item{delta}{censoring indicator, 0: exactly observed; 1: left-censored; 2: right-censored;}
 
 \item{x}{X matrix of baseline covariates.}
 
-\item{estimation}{estimating method of partly interval censored, if estimation="DR", doubly robust estimator is estimated.}
+\item{beta0}{true parameter values, including intercept, with the default being 1 for all parameters.}
 
-\item{type}{penalized estimating method, default is "wls", lasso penalized estimating method as "lasso", elasticnet penalized estimating method as "elasticnet", SCAD penalized estimating method as "SCAD"}
+\item{type}{penalized estimating method, default is "wlse", or "lasso", "alasso", "elastic", "scad" penalties are applicable.}
 
 \item{wttype}{weight estimating method, default is "KM", Beran's nonparametric KM estimating method as "Beran", and  Ishwaran's random survival forests KM estimating method as "Ishwaran".}
 
-\item{hlimit}{bandwidth value, default is NULL.}
+\item{hlimit}{bandwidth value, default is 0.1}
 
-\item{id}{cluster id. If the data does not have clustered structure, set \code{id=NULL}.}
+\item{contx1.pos}{position of the continuous covariate of variable x used in the kernel of the Beran method. The default is 1.}
+
+\item{contx2.pos}{position of the same or another continuous covariate of variable x used in the kernel of the Beran method. The default is 1.}
+
+\item{selection}{whether to use variable selection method; when using "wlse" type, the variable selection option must be set to FALSE, with the default being FALSE.}
+
+\item{id}{cluster id. If the data does not have clustered structure, must set \code{id=NULL}.}
 
 \item{index}{index of cluster weight, default is 1}
 
-\item{nonzero.index}{index of nonzero position, default is NULL.}
+\item{maxit}{maximum time value of event time T or L and R, default is 100.}
 
-\item{lamb.len}{the length of grid of lambdas, default is NULL.}
-
-\item{maxit}{maximum number of iteration for the log-rank estimator, default is 100.}
-
-\item{tol}{tolerance of iteration for the log-rank estimator, default is 1e-3.}
+\item{tol}{tolerance of the minimum threshold for the calculated weights, default is 1e-3.}
 }
 \value{
-\code{dcpenwls} returns a data frame containing at least the following components:
+\code{dcwls} returns a data frame containing at least the following components:
 \itemize{
 \item \code{coefficients}: regression estimator.
 \item \code{se}: standard error estimates for \code{est}.
@@ -68,23 +70,24 @@ dcpenwls(
 Fit inverse weighted linear regression with doubly interval-censored data
 }
 \details{
-see Kim et al., (2023+) for detailed method explanation.
+see Kim et al., (2024+) for detailed method explanation.
 }
 \examples{
 \dontrun{
 # Simulations
 n=200; x1=runif(n,-1.2,1.7); x2=rbinom(n,1,0.6)
-T = 1.7+x1+x2+rnorm(n)*(1-0.1*x2)
-L=runif(n,-2.8,1.9); R=L+runif(n,4.2,8.1)
+T = 3.7+x1+x2+rnorm(n)*(1-0.1*x2)
+L=3+runif(n,-2.8,1.9); R=L+runif(n,4.2,8.1)
 Y=pmin(R,pmax(T,L))
 delta=case_when(
- T<L ~ 3,
+ T<L ~ 1,
  T>R ~ 2,
- TRUE ~ 1 #observed
+ TRUE ~ 0 #observed
 )
-L=L; R=R; T=T; delta=delta; x=cbind(x1,x2); tau=0.3
-dcwls(L,R,T,delta,x)
-dcpenwls(L,R,T,delta,x=x,hlimit=0.1,wttype="KM")
+L=L; R=R; T=T; delta=delta; x=cbind(x1,x2); 
+dcpenwls(L,R,T,delta,x,type="wlse")
+dcpenwls(L,R,T,delta,x,type="scad")
+dcpenwls(L,R,T,delta,x,type="wlse",wttype="Beran",hlimit=0.1)
 }
 }
 \references{
@@ -92,5 +95,7 @@ Beran, R. (1981). Nonparametric Regression with Randomly Censored Survival Data.
 
 Ishwaran, H., U. B. Kogalur, E. H. Blackstone, and M. S. Lauer (2008). Random survival forests. The annals of applied statistics. 2 (3), 841–860.
 
-Kim, Y., Choi, S. (2023+). On weighted-least squares regression with partially interval-censored data.
+Pak, D., Langohr, K., Ning, J., Cort ́es Mart ́ınez, J., G ́omez Melis, G., and Shen, Y. (2020). Modeling the coronavirus disease 2019 incubation period: impact on quarantine policy. Mathematics, 8(9):1631.
+
+Kim, Y., Park, S., Choi, S. (2024+). On weighted-least squares regression with doubly interval-censored COVID-19 study.
 }
