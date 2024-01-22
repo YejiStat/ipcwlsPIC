@@ -27,7 +27,7 @@ picpenwls(
 
 \item{R}{right-censoring time, having \code{Inf} if right-censored.}
 
-\item{delta}{censoring indicator, 0: exactly observed; 1: left-censored; 2: right-censored; 3: interval-censored;}
+\item{delta}{censoring indicator, 0: exactly observed; 1: left-censored; 2: right-censored;}
 
 \item{x}{X matrix of baseline covariates.}
 
@@ -54,7 +54,7 @@ picpenwls(
 \item{tol}{tolerance of the minimum threshold for the calculated weights, default is 1e-3.}
 }
 \value{
-\code{picwls} returns a data frame containing at least the following components:
+\code{dcwls} returns a data frame containing at least the following components:
 \itemize{
 \item \code{coefficients}: regression estimator.
 \item \code{se}: standard error estimates for \code{est}.
