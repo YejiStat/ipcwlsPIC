@@ -140,36 +140,34 @@ dcpenwls=function(L,R,T,delta,x,beta0=rep(1,ncol(x)),type="wlse",wttype="KM",hli
   
   Berfunc = function(L,R,T=NULL,x,delta) {
     
-    if(sum(delta==1)==n){
+    if(sum(delta==0)==n){
       Y=T; n=length(Y); y=Y
       
-    }else if(sum(delta==4)!=0){ 
+    }else if(sum(delta==3)!=0){ 
       #pic
-      L = pmax(L,1e-8); R = pmax(R,1e-8); Y=pmax(ifelse(delta==4,R,L),1e-8); n=length(L); y=Y
-      deltaL = ifelse(delta==4|delta==3,1,0)
-      deltaR = ifelse(delta==4|delta==2,1,0)
+      L = pmax(L,1e-8); R = pmax(R,1e-8); Y=pmax(ifelse(delta==3,R,L),1e-8); n=length(L); y=Y
       
-    }else if(sum(delta==2)!=0 & sum(delta==3)!=0){ 
+    }else if(sum(delta==2)!=0 & sum(delta==1)!=0){ 
       #dc
       L = pmax(L,1e-8); R=pmax(R,1e-8); Y=ifelse(L<R, pmin(R,pmax(L,T)), pmin(R,T) );n=length(Y); y=Y
-      deltaL = ifelse(delta==3,1,0)
+      deltaL = ifelse(delta==1,1,0)
       deltaR = ifelse(delta==2,1,0)
       
-    }else if(sum(delta==2)!=0 & sum(delta==3)==0){  
+    }else if(sum(delta==2)!=0 & sum(delta==1)==0){  
       #rc
       R=pmax(R,1e-8); Y=pmin(R,T); n=length(Y); y=Y
       deltaR = ifelse(delta==2,1,0)
       
-    }else if(sum(delta==3)!=0){ 
+    }else if(sum(delta==1)!=0){ 
       #lc
       L = pmax(L,1e-8); Y=pmax(L,T); n=length(Y); y=Y
-      deltaL = ifelse(delta==3,1,0)
+      deltaL = ifelse(delta==1,1,0)
       
     }
     
     ker = dnorm(outer(x[,contx1.pos],x[,contx2.pos],"-")/hlimit)
     Wnj = ker / rowSums(ker)
-    if(sum(delta==4)!=0){
+    if(sum(delta==3)!=0){
       denomr = rowSums(outer(y,y,">=")*(Wnj))
       denoml = rowSums(outer(y,y,"<=")*(Wnj))
     }else{
@@ -179,35 +177,36 @@ dcpenwls=function(L,R,T,delta,x,beta0=rep(1,ncol(x)),type="wlse",wttype="KM",hli
     
     sr = sl = ww= rep(0,n)
     for (i in 1:n) {
-      if(delta[i]==1){
+      if(delta[i]==0){
         
         y0 = y[i]; nom = Wnj[,i]
         
-        if(sum(delta==1)==n){
+        if(sum(delta==0)==n){
           ww[i] = 1
-        }else if(sum(delta==4)!=0){ 
-          etar = 1*(y<=y0 & deltaR==1)
-          etal = 1*(y>=y0 & deltaL==1)
-          sr = prod((1 - nom/denomr)^etar)
-          sl = 1-prod((1 - nom/denoml)^etal)
-          ww[i] = 1/pmax(1-(sr-sl), tol.wt)
-          
-        }else if(sum(delta==2)!=0 & sum(delta==3)!=0){ 
-          etar = 1*(y<=y0 & deltaR==1)
-          etal = 1*(y>=y0 & deltaL==1)
-          sr = prod((1 - nom/denomr)^etar)
-          sl = 1-prod((1 - nom/denoml)^etal)
-          ww[i] = 1/pmax( sr-sl, tol.wt)
-          
-        }else if(sum(delta==2)!=0 & sum(delta==3)==0){  
-          etar = 1*(y<=y0 & deltaR==1)
-          sr = prod((1 - nom/denomr)^etar)
-          ww[i] = 1/pmax(sr, tol.wt)
           
         }else if(sum(delta==3)!=0){ 
+          etar = 1*(y<=y0 & delta!=0)
+          etal = 1*(y>=y0 & delta!=0)
+          sr = prod((1 - nom/denomr)^etar)
+          sl = 1-prod((1 - nom/denoml)^etal)
+          ww[i] = 1/pmax(1-(sr-sl), tol)
+          
+        }else if(sum(delta==2)!=0 & sum(delta==1)!=0){ 
+          etar = 1*(y<=y0 & deltaR==1)
+          etal = 1*(y>=y0 & deltaL==1)
+          sr = prod((1 - nom/denomr)^etar)
+          sl = 1-prod((1 - nom/denoml)^etal)
+          ww[i] = 1/pmax( sr-sl, tol)
+          
+        }else if(sum(delta==2)!=0 & sum(delta==1)==0){  
+          etar = 1*(y<=y0 & deltaR==1)
+          sr = prod((1 - nom/denomr)^etar)
+          ww[i] = 1/pmax(sr, tol)
+          
+        }else if(sum(delta==1)!=0){ 
           etal = 1*(y>=y0 & deltaL==1)
           sl = 1-prod((1 - nom/denoml)^etal)
-          ww[i] = 1/pmax(1-sl, tol.wt)
+          ww[i] = 1/pmax(1-sl, tol)
           
         }
       }
@@ -220,50 +219,39 @@ dcpenwls=function(L,R,T,delta,x,beta0=rep(1,ncol(x)),type="wlse",wttype="KM",hli
   
   Ishfunc = function(L,R,T=NULL,x,delta) {
     
-    if(sum(delta==4)!=0){ 
+    if(sum(delta==3)!=0){ 
       #pic
       L = pmax(L,1e-8); R = pmax(R,1e-8); n=length(L)
-      deltaL = ifelse(delta==4|delta==3,0,1)
-      deltaR = ifelse(delta==4|delta==2,0,1)
-      dt=data.frame(L=L,R=R,statusl=deltaL,statusr=deltaR,x=x)
+      deltaL = ifelse(delta==3|delta==1,0,1)
+      deltaR = ifelse(delta==3|delta==2,0,1)
+      dt=data.frame(L=L,R=R,statusl=deltaL,statusr=deltaR,x=x,xx=1)
       
-    }else if(sum(delta==2)!=0 & sum(delta==3)!=0){ 
+    }else if(sum(delta==2)!=0 & sum(delta==1)!=0){ 
       #dc
       L = pmax(L,1e-8); R=pmax(R,1e-8); Y=ifelse(L<R, pmin(R,pmax(L,T)), pmin(R,T) );n=length(Y);
-      deltaL = ifelse(delta==3,0,1)
+      deltaL = ifelse(delta==1,0,1)
       deltaR = ifelse(delta==2,0,1)
-      dt=data.frame(L=L,R=R,statusl=deltaL,statusr=deltaR,x=x)
+      dt=data.frame(L=L,R=R,statusl=deltaL,statusr=deltaR,x=x,xx=1)
       
-    }else if(sum(delta==2)!=0 & sum(delta==3)==0){  
+    }else if(sum(delta==2)!=0 & sum(delta==1)==0){  
       #rc
       R=pmax(R,1e-8); Y=pmin(R,T); n=length(Y); y=Y
       deltaR = ifelse(delta==2,0,1)
-      dt=data.frame(R=R,statusr=deltaR,x=x)
+      dt=data.frame(R=R,statusr=deltaR,x=x,xx=1)
       
-    }else if(sum(delta==3)!=0){ 
+    }else if(sum(delta==1)!=0){ 
       #lc
       L = pmax(L,1e-8); Y=pmax(L,T); n=length(Y); y=Y
-      deltaL = ifelse(delta==3,0,1)
-      dt=data.frame(L=L,statusl=deltaL,x=x)
+      deltaL = ifelse(delta==1,0,1)
+      dt=data.frame(L=L,statusl=deltaL,x=x,xx=1)
     }
     
     
-    if(sum(delta==1)==n){
+    if(sum(delta==0)==n){
       survl=survr=0
       
-    }else if(sum(delta==4)!=0){ 
+    }else if(sum(delta==3)!=0){ 
       kml.obj <- rfsrc(Surv(-L, statusl==1) ~ .-L-statusl-R-statusr, data=dt)
-      # kml.obj <- predict(rfsrc(Surv(L, statusl) ~ xx, data=dt))
-      kml <- get.brier.survival(kml.obj, cens.model="rfsrc")
-      survl=kml$surv.aalen; survl[is.na(survl)]=0; survl
-      
-      kmr.obj <- rfsrc(Surv(R, statusr==1) ~ .-L-statusl-R-statusr, data=dt)
-      # kmr.obj <- predict(rfsrc(Surv(R, statusr) ~ xx, data=dt))
-      kmr <- get.brier.survival(kmr.obj, cens.model="rfsrc")
-      survr=kmr$surv.aalen; survr[is.na(survr)]=0; survr
-      
-    }else if(sum(delta==2)!=0 & sum(delta==3)!=0){ 
-      kml.obj <- rfsrc(Surv(-L, statusl==0) ~ .-L-statusl-R-statusr, data=dt)
       # kml.obj <- predict(rfsrc(Surv(L, statusl) ~ xx, data=dt))
       kml <- get.brier.survival(kml.obj, cens.model="rfsrc")
       survl=kml$surv.aalen; survl[is.na(survl)]=0; survl
@@ -273,13 +261,24 @@ dcpenwls=function(L,R,T,delta,x,beta0=rep(1,ncol(x)),type="wlse",wttype="KM",hli
       kmr <- get.brier.survival(kmr.obj, cens.model="rfsrc")
       survr=kmr$surv.aalen; survr[is.na(survr)]=0; survr
       
-    }else if(sum(delta==2)!=0 & sum(delta==3)==0){
+    }else if(sum(delta==2)!=0 & sum(delta==1)!=0){ 
+      kml.obj <- rfsrc(Surv(-L, statusl==1) ~ .-L-statusl-R-statusr, data=dt)
+      # kml.obj <- predict(rfsrc(Surv(L, statusl) ~ xx, data=dt))
+      kml <- get.brier.survival(kml.obj, cens.model="rfsrc")
+      survl=kml$surv.aalen; survl[is.na(survl)]=0; survl
+      
+      kmr.obj <- rfsrc(Surv(R, statusr==0) ~ .-L-statusl-R-statusr, data=dt)
+      # kmr.obj <- predict(rfsrc(Surv(R, statusr) ~ xx, data=dt))
+      kmr <- get.brier.survival(kmr.obj, cens.model="rfsrc")
+      survr=kmr$surv.aalen; survr[is.na(survr)]=0; survr
+      
+    }else if(sum(delta==2)!=0 & sum(delta==1)==0){
       kmr.obj <- rfsrc(Surv(R, statusr==0) ~ .-R-statusr, data=dt)
       # kmr.obj <- predict(rfsrc(Surv(R, statusr) ~ xx, data=dt))
       kmr <- get.brier.survival(kmr.obj, cens.model="rfsrc")
       survr=kmr$surv.aalen; survr[is.na(survr)]=0; survr
       
-    }else if(sum(delta==3)!=0){ 
+    }else if(sum(delta==1)!=0){ 
       kml.obj <- rfsrc(Surv(L, statusl==0) ~ .-L-statusl, data=dt)
       # kml.obj <- predict(rfsrc(Surv(L, statusl) ~ xx, data=dt))
       kml <- get.brier.survival(kml.obj, cens.model="rfsrc")
@@ -289,28 +288,28 @@ dcpenwls=function(L,R,T,delta,x,beta0=rep(1,ncol(x)),type="wlse",wttype="KM",hli
     
     ww= rep(0,n)
     for (i in 1:n) {
-      if(delta[i]==1){
+      if(delta[i]==0){
         
-        if(sum(delta==1)==n){
+        if(sum(delta==0)==n){
           ww[i] = 1
           
-        }else if(sum(delta==4)!=0){ 
+        }else if(sum(delta==3)!=0){ 
           sl = approx( c(0, (kml$event.info$time.interest), maxit), c(1, survl, 0), xout=L[i])$y
           sr = approx( c(0, (kmr$event.info$time.interest), maxit), c(1, survr, 0), xout=R[i])$y
-          ww[i] = 1/pmax(1-(sr-sl),tol.wt)
+          ww[i] = 1/pmax(1-(sr-sl),tol)
           
-        }else if(sum(delta==2)!=0 & sum(delta==3)!=0){ 
+        }else if(sum(delta==2)!=0 & sum(delta==1)!=0){ 
           sl = approx( c(0, (kml$event.info$time.interest), maxit), c(1, survl, 0), xout=Y[i])$y
           sr = approx( c(0, (kmr$event.info$time.interest), maxit), c(1, survr, 0), xout=Y[i])$y
-          ww[i] = 1/pmax( sr-sl, tol.wt)
+          ww[i] = 1/pmax( sr-sl, tol)
           
-        }else if(sum(delta==2)!=0 & sum(delta==3)==0){ 
+        }else if(sum(delta==2)!=0 & sum(delta==1)==0){ 
           sr = approx( c(0, (kmr$event.info$time.interest), maxit), c(1, survr, 0), xout=Y[i])$y
-          ww[i] = 1/pmax(sr, tol.wt)
+          ww[i] = 1/pmax(sr, tol)
           
-        }else if(sum(delta==3)!=0){ 
+        }else if(sum(delta==1)!=0){ 
           sl = approx( c(0, (kml$event.info$time.interest), maxit), c(1, survl, 0), xout=Y[i])$y
-          ww[i] = 1/pmax(1-sl, tol.wt)
+          ww[i] = 1/pmax(1-sl, tol)
           
         }
       }

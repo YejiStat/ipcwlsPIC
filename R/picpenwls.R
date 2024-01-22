@@ -6,7 +6,7 @@ NULL
 #'
 #' @param L left-censoring time, having 0 if left-censored.
 #' @param R right-censoring time, having \code{Inf} if right-censored.
-#' @param delta censoring indicator, 0: exactly observed; 1: left-censored; 2: right-censored; 3: interval-censored;
+#' @param delta censoring indicator, 0: exactly observed; 1: left-censored; 2: right-censored; 
 #' @param x X matrix of baseline covariates.
 #' @param beta0 true parameter values, including intercept, with the default being 1 for all parameters."
 #' @param type penalized estimating method, default is "wlse", or "lasso", "alasso", "elastic", "scad" penalties are applicable.
@@ -20,7 +20,7 @@ NULL
 #' @param maxit maximum time value of event time T or L and R, default is 100.
 #' @param tol tolerance of the minimum threshold for the calculated weights, default is 1e-3.
 #'
-#' @return \code{picwls} returns a data frame containing at least the following components:
+#' @return \code{dcwls} returns a data frame containing at least the following components:
 #' \itemize{
 #'   \item \code{coefficients}: regression estimator.
 #'   \item \code{se}: standard error estimates for \code{est}.
