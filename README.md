@@ -44,18 +44,21 @@ d = with(data.frame(mCRC), data.frame(U = ifelse(y==0,R,L),
 ));
 L=(log(d$U));R=log(d$V); delta=d$delta
 x = cbind(d$x1,d$x2); id=d$id;
-ipcwlsPIC::picpenwls(U=L,V=R,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty")$res
-#>   coefficients       se   pvalue 95% lower bd 95% upper bd
-#> 1     0.159885 0.053671 0.001446     0.054689     0.265081
-#> 2     0.390119 0.052705 0.000000     0.286816     0.493422
-ipcwlsPIC::picpenwls(U=L,V=R,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",index = 1)$res
-#>   coefficients       se   pvalue 95% lower bd 95% upper bd
-#> 1     0.159885 0.053671 0.001446     0.054689     0.265081
-#> 2     0.390119 0.052705 0.000000     0.286816     0.493422
-ipcwlsPIC::picpenwls(U=L,V=R,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",wttype="Beran",hlimit=0.1,id=id,index = 1)$res
-#>   coefficients       se pvalue 95% lower bd 95% upper bd
-#> 1     0.126141 0.022284      0     0.082465     0.169817
-#> 2     0.403022 0.021959      0     0.359982     0.446061
+ipcwlsPIC::picpenwls(L=L,R=R,delta=delta,x=x,beta0 = c(1,1,1),type="wlse")$res
+#>   coefficients        se    pvalue   lower bd  upper bd
+#> 1   4.34668364 0.2039375 0.0000000  3.9469661 4.7464012
+#> 2   0.10503791 0.1652651 0.2625276 -0.2188816 0.4289575
+#> 3   0.08319163 0.1980515 0.3372243 -0.3049893 0.4713725
+ipcwlsPIC::picpenwls(L=L,R=R,delta=delta,x=x,beta0 = c(1,1,1),type="wlse",index = 1)$res
+#>   coefficients        se    pvalue   lower bd  upper bd
+#> 1   4.34668364 0.2039375 0.0000000  3.9469661 4.7464012
+#> 2   0.10503791 0.1652651 0.2625276 -0.2188816 0.4289575
+#> 3   0.08319163 0.1980515 0.3372243 -0.3049893 0.4713725
+ipcwlsPIC::picpenwls(L=L,R=R,delta=delta,x=x,beta0 = c(1,1,1),type="wlse",wttype="Beran",hlimit=0.1,id=id,index = 1)$res
+#>   coefficients        se     pvalue   lower bd  upper bd
+#> 1    3.7209189 0.2772746 0.00000000  3.1774607 4.2643771
+#> 2    0.1262165 0.2639139 0.31623655 -0.3910548 0.6434879
+#> 3    0.4026830 0.2889063 0.08168615 -0.1635733 0.9689393
 ```
 
 
