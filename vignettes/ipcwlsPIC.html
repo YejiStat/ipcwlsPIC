@@ -344,9 +344,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h2>Introduction</h2>
 <p><code>ipcwlsPIC</code> is the R package to fit a new
 inverse-probability censoring weighted (IPCW) estimating procedure for
-censored linear regression when the data are partially interval-censored
-that include doubly-censored (DC) data and partly interval-censored
-(PIC) and possibly correlated within the same cluster. Let <span class="math inline">\(T\)</span> and <span class="math inline">\(X\)</span> be the event time of interest and its
+linear regression when the data are partially interval-censored that
+include doubly-censored (DC) data and partly interval-censored (PIC) and
+possibly correlated within the same cluster. Let <span class="math inline">\(T\)</span> and <span class="math inline">\(X\)</span> be the event time of interest and its
 related <span class="math inline">\(p\)</span>-vector of covariates,
 respectively. Our main objective is to estimate the <span class="math inline">\(p\)</span>-dimensional linear coefficient vector
 <span class="math inline">\({\boldsymbol{\beta}}_0\)</span> in the
@@ -374,53 +374,59 @@ help(dcwls()).</p>
 normal random error, which is similar to PIC data simulation setting of
 Kim et al. (2023+).</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">library</span>(ipcwlsPIC)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">111</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>n <span class="ot">=</span> <span class="dv">200</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>x1 <span class="ot">=</span> <span class="fu">runif</span>(n,<span class="sc">-</span><span class="dv">1</span>,<span class="dv">1</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>x2 <span class="ot">=</span> <span class="fu">rbinom</span>(n,<span class="dv">1</span>,<span class="fl">0.43</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">cbind</span>(x1,x2)</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>T <span class="ot">=</span> <span class="dv">2</span> <span class="sc">+</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> <span class="fu">rnorm</span>(n)</span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>U <span class="ot">=</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.25</span><span class="sc">*</span>x1)<span class="sc">*</span><span class="fu">runif</span>(n, <span class="sc">-</span><span class="dv">6</span>, <span class="dv">5</span>)</span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>V <span class="ot">=</span> U <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.1</span><span class="sc">*</span>x2)<span class="sc">*</span><span class="fu">runif</span>(n, <span class="dv">6</span>, <span class="dv">20</span>)</span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>U <span class="ot">=</span> <span class="fu">exp</span>(dplyr<span class="sc">::</span><span class="fu">case_when</span>(<span class="cn">TRUE</span> <span class="sc">~</span> T, T<span class="sc">&gt;</span>V <span class="sc">~</span> V, T<span class="sc">&lt;</span>U <span class="sc">~</span> <span class="sc">-</span><span class="cn">Inf</span>)); U<span class="ot">=</span><span class="fu">log</span>(U)</span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>V <span class="ot">=</span> <span class="fu">exp</span>(dplyr<span class="sc">::</span><span class="fu">case_when</span>(<span class="cn">TRUE</span> <span class="sc">~</span> T, T<span class="sc">&gt;</span>V <span class="sc">~</span> <span class="cn">Inf</span>, T<span class="sc">&lt;</span>U <span class="sc">~</span> U)); V<span class="ot">=</span><span class="fu">log</span>(V)</span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>delta <span class="ot">=</span> <span class="fu">ifelse</span>(U<span class="sc">==</span>V, <span class="dv">1</span>, <span class="dv">4</span>); <span class="fu">table</span>(delta)</span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; delta</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt;   1 </span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; 200</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">picpenwls</span>(<span class="at">U=</span>U,<span class="at">V=</span>V,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;nonpenalty&quot;</span>)<span class="sc">$</span>res</span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt;    coefficients       se   pvalue 95% lower bd 95% upper bd</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; x1     0.864126 0.288191 0.001357     0.299271      1.42898</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; x2     1.003563 0.258856 0.000053     0.496206      1.51092</span></span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">library</span>(survival)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">111</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>n <span class="ot">=</span> <span class="dv">200</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>x1 <span class="ot">=</span> <span class="fu">runif</span>(n,<span class="sc">-</span><span class="dv">1</span>,<span class="dv">1</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>x2 <span class="ot">=</span> <span class="fu">rbinom</span>(n,<span class="dv">1</span>,<span class="fl">0.43</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">cbind</span>(x1,x2)</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>T <span class="ot">=</span> <span class="dv">2</span> <span class="sc">+</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>U <span class="ot">=</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.25</span><span class="sc">*</span>x1)<span class="sc">*</span><span class="fu">runif</span>(n, <span class="sc">-</span><span class="dv">6</span>, <span class="dv">5</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>V <span class="ot">=</span> U <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.1</span><span class="sc">*</span>x2)<span class="sc">*</span><span class="fu">runif</span>(n, <span class="dv">6</span>, <span class="dv">20</span>)<span class="sc">+</span><span class="dv">10</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>U <span class="ot">=</span> <span class="fu">exp</span>(dplyr<span class="sc">::</span><span class="fu">case_when</span>(<span class="cn">TRUE</span> <span class="sc">~</span> T, T<span class="sc">&gt;</span>V <span class="sc">~</span> V, T<span class="sc">&lt;</span>U <span class="sc">~</span> <span class="sc">-</span><span class="cn">Inf</span>)); U<span class="ot">=</span><span class="fu">log</span>(U)</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>V <span class="ot">=</span> <span class="fu">exp</span>(dplyr<span class="sc">::</span><span class="fu">case_when</span>(<span class="cn">TRUE</span> <span class="sc">~</span> T, T<span class="sc">&gt;</span>V <span class="sc">~</span> <span class="cn">Inf</span>, T<span class="sc">&lt;</span>U <span class="sc">~</span> U)); V<span class="ot">=</span><span class="fu">log</span>(V)</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>delta <span class="ot">=</span> <span class="fu">ifelse</span>(U<span class="sc">==</span>V, <span class="dv">0</span>, <span class="dv">3</span>); <span class="fu">table</span>(delta)</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; delta</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt;   0 </span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; 200</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">picpenwls</span>(<span class="at">L=</span>U,<span class="at">R=</span>V,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;wlse&quot;</span>)<span class="sc">$</span>res</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt;    coefficients         se       pvalue  lower bd upper bd</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt;       2.0811705 0.08176957 0.000000e+00 1.9209021 2.241439</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; x1    0.8635934 0.10270692 0.000000e+00 0.6622878 1.064899</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; x2    1.0003371 0.13588512 9.081624e-14 0.7340022 1.266672</span></span></code></pre></div>
 <p>We posit two estimating methods, ipcw estimating method and doubly
 robust ipcw estimating method, which can be conducted by specifying
 estimation = NULL and estimation = “DR”, respectively.</p>
 <p>Next, we simulate univariate doubly-censored (DC) data with normal
 random error, which is one of DC data simulation setting of Kim et
 al. (2023+).</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>n<span class="ot">=</span><span class="dv">200</span>; </span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>x1<span class="ot">=</span><span class="fu">runif</span>(n,<span class="sc">-</span><span class="fl">1.2</span>,<span class="fl">1.7</span>); x2<span class="ot">=</span><span class="fu">rbinom</span>(n,<span class="dv">1</span>,<span class="fl">0.6</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>T <span class="ot">=</span> <span class="fl">1.7</span><span class="sc">+</span>x1<span class="sc">+</span>x2<span class="sc">+</span><span class="fu">rnorm</span>(n)<span class="sc">*</span>(<span class="dv">1</span><span class="fl">-0.1</span><span class="sc">*</span>x2)</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>L<span class="ot">=</span><span class="fu">runif</span>(n,<span class="sc">-</span><span class="fl">2.8</span>,<span class="fl">1.9</span>); R<span class="ot">=</span>L<span class="sc">+</span><span class="fu">runif</span>(n,<span class="fl">4.2</span>,<span class="fl">8.1</span>)</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>Y<span class="ot">=</span><span class="fu">pmin</span>(R,<span class="fu">pmax</span>(T,L))</span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>delta<span class="ot">=</span><span class="fu">case_when</span>(</span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a> T<span class="sc">&lt;</span>L <span class="sc">~</span> <span class="dv">3</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a> T<span class="sc">&gt;</span>R <span class="sc">~</span> <span class="dv">2</span>,</span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a> <span class="cn">TRUE</span> <span class="sc">~</span> <span class="dv">1</span> <span class="co">#observed</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>)</span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>L<span class="ot">=</span>L; R<span class="ot">=</span>R; T<span class="ot">=</span>T; delta<span class="ot">=</span>delta; x<span class="ot">=</span><span class="fu">cbind</span>(x1,x2);</span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">dcpenwls</span>(<span class="at">L=</span>L,<span class="at">R=</span>R,<span class="at">T=</span>T,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;nonpenalty&quot;</span>)<span class="sc">$</span>res</span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;    coefficients       se   pvalue 95% lower bd 95% upper bd</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; x1     0.978783 0.194751 0.000000     0.597071     1.360494</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; x2     0.624725 0.217471 0.002035     0.198482     1.050967</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">dcpenwls</span>(<span class="at">L=</span>L,<span class="at">R=</span>R,<span class="at">T=</span>T,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;nonpenalty&quot;</span>,<span class="at">wttype =</span> <span class="st">&quot;Beran&quot;</span>, <span class="at">hlimit =</span> <span class="fl">0.1</span>)<span class="sc">$</span>res</span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;    coefficients       se   pvalue 95% lower bd 95% upper bd</span></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; x1     0.958587 0.195190 0.000000     0.576013     1.341160</span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; x2     0.624248 0.225841 0.002854     0.181599     1.066896</span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">dcpenwls</span>(<span class="at">L=</span>L,<span class="at">R=</span>R,<span class="at">T=</span>T,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;nonpenalty&quot;</span>,<span class="at">wttype =</span> <span class="st">&quot;Ishwaran&quot;</span>)<span class="sc">$</span>res</span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt;    coefficients       se   pvalue 95% lower bd 95% upper bd</span></span>
-<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; x1     1.032371 0.190553 0.000000     0.658886     1.405855</span></span>
-<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; x2     0.649457 0.211713 0.001079     0.234500     1.064414</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>n<span class="ot">=</span><span class="dv">200</span>;</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>x1<span class="ot">=</span><span class="fu">runif</span>(n,<span class="sc">-</span><span class="fl">1.2</span>,<span class="fl">1.7</span>); x2<span class="ot">=</span><span class="fu">rbinom</span>(n,<span class="dv">1</span>,<span class="fl">0.6</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>T <span class="ot">=</span> <span class="fl">1.7</span><span class="sc">+</span>x1<span class="sc">+</span>x2<span class="sc">+</span><span class="fu">rnorm</span>(n)<span class="sc">*</span>(<span class="dv">1</span><span class="fl">-0.1</span><span class="sc">*</span>x2)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>L<span class="ot">=</span><span class="fu">runif</span>(n,<span class="sc">-</span><span class="fl">2.8</span>,<span class="fl">1.9</span>); R<span class="ot">=</span>L<span class="sc">+</span><span class="fu">runif</span>(n,<span class="fl">4.2</span>,<span class="fl">8.1</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>Y<span class="ot">=</span><span class="fu">pmin</span>(R,<span class="fu">pmax</span>(T,L))</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>delta<span class="ot">=</span><span class="fu">case_when</span>(</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a> T<span class="sc">&lt;</span>L <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a> T<span class="sc">&gt;</span>R <span class="sc">~</span> <span class="dv">2</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a> <span class="cn">TRUE</span> <span class="sc">~</span> <span class="dv">0</span> <span class="co">#observed</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>)</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>L<span class="ot">=</span>L; R<span class="ot">=</span>R; T<span class="ot">=</span>T; delta<span class="ot">=</span>delta; x<span class="ot">=</span><span class="fu">cbind</span>(x1,x2);</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">dcpenwls</span>(<span class="at">L=</span>L,<span class="at">R=</span>R,<span class="at">T=</span>T,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;wlse&quot;</span>)<span class="sc">$</span>res</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;    coefficients         se       pvalue  lower bd  upper bd</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;       1.9536398 0.11270123 0.000000e+00 1.7327454 2.1745343</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; x1    0.9327420 0.07328068 0.000000e+00 0.7891118 1.0763721</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; x2    0.5848257 0.13431370 6.678368e-06 0.3215709 0.8480805</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">dcpenwls</span>(<span class="at">L=</span>L,<span class="at">R=</span>R,<span class="at">T=</span>T,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;wlse&quot;</span>,<span class="at">wttype =</span> <span class="st">&quot;Beran&quot;</span>, <span class="at">hlimit =</span> <span class="fl">0.1</span>)<span class="sc">$</span>res</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;    coefficients         se       pvalue  lower bd upper bd</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;       1.9942305 0.12787284 0.000000e+00 1.7435997 2.244861</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; x1    0.9585865 0.07876355 0.000000e+00 0.8042100 1.112963</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; x2    0.6242476 0.14958642 1.502039e-05 0.3310582 0.917437</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">dcpenwls</span>(<span class="at">L=</span>L,<span class="at">R=</span>R,<span class="at">T=</span>T,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;wlse&quot;</span>,<span class="at">wttype =</span> <span class="st">&quot;Ishwaran&quot;</span>)<span class="sc">$</span>res</span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt;    coefficients         se       pvalue  lower bd  upper bd</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt;       1.8941214 0.12746280 0.000000e+00 1.6442943 2.1439485</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; x1    1.0212356 0.08058101 0.000000e+00 0.8632968 1.1791744</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt; x2    0.6461007 0.14914460 7.386637e-06 0.3537772 0.9384241</span></span></code></pre></div>
 <p>We can choose one of three weighting types, the nonparametric KM
 estimating method, Beran’s nonparametric KM estimating method, and
 Ishwaran’s nonparametric survival random forests estimating method which
@@ -445,18 +451,20 @@ id=id and index value is put, we can get the adjusted IPCW method.</p>
 <span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>L<span class="ot">=</span><span class="fu">runif</span>(n,<span class="sc">-</span><span class="fl">3.8</span>,<span class="dv">2</span>); R<span class="ot">=</span>L<span class="sc">+</span><span class="fu">runif</span>(n,<span class="fl">3.2</span>,<span class="fl">9.7</span>)</span>
 <span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>x<span class="ot">=</span><span class="fu">as.matrix</span>(<span class="fu">cbind</span>(x1,x2),<span class="at">ncol=</span><span class="dv">2</span>)</span>
 <span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>delta<span class="ot">=</span><span class="fu">case_when</span>(</span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>    T<span class="sc">&lt;</span>L <span class="sc">~</span> <span class="dv">3</span>,</span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>    T<span class="sc">&lt;</span>L <span class="sc">~</span> <span class="dv">1</span>,</span>
 <span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>    T<span class="sc">&gt;</span>R <span class="sc">~</span> <span class="dv">2</span>,</span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="dv">1</span> <span class="co">#observed</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="dv">0</span> <span class="co">#observed</span></span>
 <span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>  )</span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">dcpenwls</span>(<span class="at">L=</span>L,<span class="at">R=</span>R,<span class="at">T=</span>T,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;nonpenalty&quot;</span>,<span class="at">wttype=</span><span class="st">&quot;KM&quot;</span>,<span class="at">id=</span><span class="cn">NULL</span>)<span class="sc">$</span>res</span>
-<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt;    coefficients       se pvalue 95% lower bd 95% upper bd</span></span>
-<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt; x1     0.873089 0.169189  0e+00     0.541479     1.204700</span></span>
-<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; x2     0.828822 0.177353  1e-06     0.481209     1.176435</span></span>
-<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">dcpenwls</span>(<span class="at">L=</span>L,<span class="at">R=</span>R,<span class="at">T=</span>T,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;nonpenalty&quot;</span>,<span class="at">wttype=</span><span class="st">&quot;KM&quot;</span>,<span class="at">id=</span>id,<span class="at">index =</span> <span class="dv">1</span>)<span class="sc">$</span>res</span>
-<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt;    coefficients       se  pvalue 95% lower bd 95% upper bd</span></span>
-<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt; x1     0.873089 0.198790 6.0e-06     0.483461     1.262718</span></span>
-<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a><span class="co">#&gt; x2     0.828822 0.197354 1.3e-05     0.442009     1.215635</span></span></code></pre></div>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">dcpenwls</span>(<span class="at">L=</span>L,<span class="at">R=</span>R,<span class="at">T=</span>T,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;wlse&quot;</span>,<span class="at">wttype=</span><span class="st">&quot;KM&quot;</span>,<span class="at">id=</span><span class="cn">NULL</span>)<span class="sc">$</span>res</span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt;    coefficients        se       pvalue  lower bd upper bd</span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt;       1.2603176 0.1199156 0.000000e+00 1.0252831 1.495352</span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; x1    0.8139614 0.1286793 1.262043e-10 0.5617500 1.066173</span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt; x2    0.7547662 0.1640145 2.094025e-06 0.4332977 1.076235</span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">dcpenwls</span>(<span class="at">L=</span>L,<span class="at">R=</span>R,<span class="at">T=</span>T,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;wlse&quot;</span>,<span class="at">wttype=</span><span class="st">&quot;KM&quot;</span>,<span class="at">id=</span>id,<span class="at">index =</span> <span class="dv">1</span>)<span class="sc">$</span>res</span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt;    coefficients        se       pvalue  lower bd upper bd</span></span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a><span class="co">#&gt;       1.2773737 0.1335764 0.000000e+00 1.0155640 1.539184</span></span>
+<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a><span class="co">#&gt; x1    0.8080421 0.1345249 9.470705e-10 0.5443733 1.071711</span></span>
+<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a><span class="co">#&gt; x2    0.6915279 0.1869156 1.079355e-04 0.3251734 1.057882</span></span></code></pre></div>
 <p>In real data analysis, we apply our proposed method to the
 multivariate clustered PIC data using a phase 3 metastatic colorectal
 cancer clinical trial. This dataset is accessible for data(mCRC) in the
@@ -473,23 +481,26 @@ PICBayes R package (Pan, 2021).</p>
 <span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>                                      <span class="co"># Tumor KRAS mutation status: 0 = wild-type, 1 = mutant.</span></span>
 <span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>                                      <span class="at">x2=</span> <span class="fu">case_when</span>(KRAS_C <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
 <span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>                                                    KRAS_C <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="dv">0</span>),</span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>                                      <span class="at">delta =</span> <span class="fu">case_when</span>(IC <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>                                                        IC <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="dv">4</span>)</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>                                      <span class="at">delta =</span> <span class="fu">case_when</span>(IC <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="dv">0</span>,</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>                                                        IC <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="dv">3</span>)</span>
 <span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>));</span>
 <span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>L<span class="ot">=</span>(<span class="fu">log</span>(d<span class="sc">$</span>U));R<span class="ot">=</span><span class="fu">log</span>(d<span class="sc">$</span>V); delta<span class="ot">=</span>d<span class="sc">$</span>delta</span>
 <span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">cbind</span>(d<span class="sc">$</span>x1,d<span class="sc">$</span>x2); id<span class="ot">=</span>d<span class="sc">$</span>id;</span>
-<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">picpenwls</span>(<span class="at">U=</span>L,<span class="at">V=</span>R,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;nonpenalty&quot;</span>)<span class="sc">$</span>res</span>
-<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt;   coefficients       se   pvalue 95% lower bd 95% upper bd</span></span>
-<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt; 1     0.159885 0.053671 0.001446     0.054689     0.265081</span></span>
-<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt; 2     0.390119 0.052705 0.000000     0.286816     0.493422</span></span>
-<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">picpenwls</span>(<span class="at">U=</span>L,<span class="at">V=</span>R,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;nonpenalty&quot;</span>,<span class="at">index =</span> <span class="dv">1</span>)<span class="sc">$</span>res</span>
-<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co">#&gt;   coefficients       se   pvalue 95% lower bd 95% upper bd</span></span>
-<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">#&gt; 1     0.159885 0.053671 0.001446     0.054689     0.265081</span></span>
-<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co">#&gt; 2     0.390119 0.052705 0.000000     0.286816     0.493422</span></span>
-<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">picpenwls</span>(<span class="at">U=</span>L,<span class="at">V=</span>R,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;nonpenalty&quot;</span>,<span class="at">wttype=</span><span class="st">&quot;Beran&quot;</span>,<span class="at">hlimit=</span><span class="fl">0.1</span>,<span class="at">id=</span>id,<span class="at">index =</span> <span class="dv">1</span>)<span class="sc">$</span>res</span>
-<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a><span class="co">#&gt;   coefficients       se pvalue 95% lower bd 95% upper bd</span></span>
-<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a><span class="co">#&gt; 1     0.126141 0.022284      0     0.082465     0.169817</span></span>
-<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a><span class="co">#&gt; 2     0.403022 0.021959      0     0.359982     0.446061</span></span></code></pre></div>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">picpenwls</span>(<span class="at">L=</span>L,<span class="at">R=</span>R,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;wlse&quot;</span>)<span class="sc">$</span>res</span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt;   coefficients        se    pvalue   lower bd  upper bd</span></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt; 1   4.34668364 0.2039375 0.0000000  3.9469661 4.7464012</span></span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt; 2   0.10503791 0.1652651 0.2625276 -0.2188816 0.4289575</span></span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">#&gt; 3   0.08319163 0.1980515 0.3372243 -0.3049893 0.4713725</span></span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">picpenwls</span>(<span class="at">L=</span>L,<span class="at">R=</span>R,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;wlse&quot;</span>,<span class="at">index =</span> <span class="dv">1</span>)<span class="sc">$</span>res</span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">#&gt;   coefficients        se    pvalue   lower bd  upper bd</span></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co">#&gt; 1   4.34668364 0.2039375 0.0000000  3.9469661 4.7464012</span></span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a><span class="co">#&gt; 2   0.10503791 0.1652651 0.2625276 -0.2188816 0.4289575</span></span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a><span class="co">#&gt; 3   0.08319163 0.1980515 0.3372243 -0.3049893 0.4713725</span></span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a>ipcwlsPIC<span class="sc">::</span><span class="fu">picpenwls</span>(<span class="at">L=</span>L,<span class="at">R=</span>R,<span class="at">delta=</span>delta,<span class="at">x=</span>x,<span class="at">beta0 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">type=</span><span class="st">&quot;wlse&quot;</span>,<span class="at">wttype=</span><span class="st">&quot;Beran&quot;</span>,<span class="at">hlimit=</span><span class="fl">0.1</span>,<span class="at">id=</span>id,<span class="at">index =</span> <span class="dv">1</span>)<span class="sc">$</span>res</span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a><span class="co">#&gt;   coefficients        se     pvalue   lower bd  upper bd</span></span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a><span class="co">#&gt; 1    3.7209189 0.2772746 0.00000000  3.1774607 4.2643771</span></span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a><span class="co">#&gt; 2    0.1262165 0.2639139 0.31623655 -0.3910548 0.6434879</span></span>
+<span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a><span class="co">#&gt; 3    0.4026830 0.2889063 0.08168615 -0.1635733 0.9689393</span></span></code></pre></div>
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>
@@ -499,14 +510,12 @@ Survival Data. Technical Report, Univ.California, Berkeley.</p></li>
 <li><p>Ishwaran, H., U. B. Kogalur, E. H. Blackstone, and M. S. Lauer
 (2008). Random survival forests. The annals of applied statistics. 2
 (3), 841–860.</p></li>
-<li><p>Gorfine, M., Y. Goldberg, and Y. Ritov (2017). A quantile
-regression model for failure-time data with time- dependent covariates.
-Biostatistics. 18 (1), 132–146.</p></li>
-<li><p>Pan, C. (2021). PICBayes: Bayesian Models for Partly
-Interval-Censored Data. R package. <a href="https://CRAN.R-project.org/package=PICBayes" class="uri">https://CRAN.R-project.org/package=PICBayes</a>.</p></li>
-<li><p>Kim, Y., Choi, T. (2023+). Inverse weighted linear regression
-with partially interval-censored data. <em>Submitted to
-JKSS</em>.</p></li>
+<li><p>Pak, D., Langohr, K., Ning, J., Cort ́es Mart ́ınez, J., G ́omez
+Melis, G., and Shen, Y. (2020). Modeling the coronavirus disease 2019
+incubation period: impact on quarantine policy. Mathematics,
+8(9):1631.</p></li>
+<li><p>Kim, Y. (2024+). On weighted-least squares regression with doubly
+interval-censored COVID-19 study. <em>Submitted to BMC</em>.</p></li>
 </ul>
 </div>
 

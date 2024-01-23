@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-`ipcwlsPIC` is the R package to fit a new inverse-probability censoring weighted (IPCW) estimating procedure for censored linear regression when the data are partially interval-censored that include doubly-censored (DC) data and partly interval-censored (PIC) and possibly correlated within the same cluster.
+`ipcwlsPIC` is the R package to fit a new inverse-probability censoring weighted (IPCW) estimating procedure for linear regression when the data are partially interval-censored that include doubly-censored (DC) data and partly interval-censored (PIC) and possibly correlated within the same cluster.
 Let $T$ and $X$ be the event time of interest and its related $p$-vector of covariates, respectively.
 Our main objective is to estimate 
 the $p$-dimensional linear coefficient vector ${\boldsymbol{\beta}}_0$
@@ -70,6 +70,7 @@ We first simulate univariate partly interval-censored (PIC) data with normal ran
 
 ```{r message=FALSE, warning=FALSE}
 library(ipcwlsPIC)
+library(survival)
 set.seed(111)
 n = 200
 x1 = runif(n,-1,1)
@@ -77,11 +78,11 @@ x2 = rbinom(n,1,0.43)
 x = cbind(x1,x2)
 T = 2 + x1 + x2 + rnorm(n)
 U = (1 - 0.25*x1)*runif(n, -6, 5)
-V = U + (1 - 0.1*x2)*runif(n, 6, 20)
+V = U + (1 - 0.1*x2)*runif(n, 6, 20)+10
 U = exp(dplyr::case_when(TRUE ~ T, T>V ~ V, T<U ~ -Inf)); U=log(U)
 V = exp(dplyr::case_when(TRUE ~ T, T>V ~ Inf, T<U ~ U)); V=log(V)
-delta = ifelse(U==V, 1, 4); table(delta)
-ipcwlsPIC::picpenwls(U=U,V=V,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty")$res
+delta = ifelse(U==V, 0, 3); table(delta)
+ipcwlsPIC::picpenwls(L=U,R=V,delta=delta,x=x,beta0 = c(1,1,1),type="wlse")$res
 ```
 
 We posit two estimating methods, ipcw estimating method and doubly robust ipcw estimating method, which can be conducted by specifying estimation = NULL and estimation = "DR", respectively.
@@ -89,20 +90,21 @@ We posit two estimating methods, ipcw estimating method and doubly robust ipcw e
 Next, we simulate univariate doubly-censored (DC) data with normal random error, which is one of DC data simulation setting of Kim et al. (2023+).
 
 ```{r message=FALSE, warning=FALSE}
-n=200; 
+library(tidyverse)
+n=200;
 x1=runif(n,-1.2,1.7); x2=rbinom(n,1,0.6)
 T = 1.7+x1+x2+rnorm(n)*(1-0.1*x2)
 L=runif(n,-2.8,1.9); R=L+runif(n,4.2,8.1)
 Y=pmin(R,pmax(T,L))
 delta=case_when(
- T<L ~ 3,
+ T<L ~ 1,
  T>R ~ 2,
- TRUE ~ 1 #observed
+ TRUE ~ 0 #observed
 )
 L=L; R=R; T=T; delta=delta; x=cbind(x1,x2);
-ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty")$res
-ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",wttype = "Beran", hlimit = 0.1)$res
-ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",wttype = "Ishwaran")$res
+ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1,1),type="wlse")$res
+ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1,1),type="wlse",wttype = "Beran", hlimit = 0.1)$res
+ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1,1),type="wlse",wttype = "Ishwaran")$res
 ```
 
 We can choose one of three weighting types, the nonparametric KM estimating method, Beran's nonparametric KM estimating method, and Ishwaran's nonparametric survival random forests estimating method which can be accessible by using wttype="KM", wttype="Beran" and wttype="Ishwaran", respectively.
@@ -125,12 +127,12 @@ T = 1+x1+x2 + vi +(rnorm(n))
 L=runif(n,-3.8,2); R=L+runif(n,3.2,9.7)
 x=as.matrix(cbind(x1,x2),ncol=2)
 delta=case_when(
-    T<L ~ 3,
+    T<L ~ 1,
     T>R ~ 2,
-    TRUE ~ 1 #observed
+    TRUE ~ 0 #observed
   )
-ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",wttype="KM",id=NULL)$res
-ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",wttype="KM",id=id,index = 1)$res
+ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1),type="wlse",wttype="KM",id=NULL)$res
+ipcwlsPIC::dcpenwls(L=L,R=R,T=T,delta=delta,x=x,beta0 = c(1,1),type="wlse",wttype="KM",id=id,index = 1)$res
 ```
 
 In real data analysis, we apply our proposed method to the multivariate clustered PIC data using a phase 3 metastatic colorectal cancer clinical trial. This dataset is accessible for data(mCRC) in the PICBayes R package (Pan, 2021).
@@ -148,14 +150,14 @@ d = with(data.frame(mCRC), data.frame(U = ifelse(y==0,R,L),
                                       # Tumor KRAS mutation status: 0 = wild-type, 1 = mutant.
                                       x2= case_when(KRAS_C == 0 ~ 1,
                                                     KRAS_C == 1 ~ 0),
-                                      delta = case_when(IC == 0 ~ 1,
-                                                        IC == 1 ~ 4)
+                                      delta = case_when(IC == 0 ~ 0,
+                                                        IC == 1 ~ 3)
 ));
 L=(log(d$U));R=log(d$V); delta=d$delta
 x = cbind(d$x1,d$x2); id=d$id;
-ipcwlsPIC::picpenwls(U=L,V=R,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty")$res
-ipcwlsPIC::picpenwls(U=L,V=R,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",index = 1)$res
-ipcwlsPIC::picpenwls(U=L,V=R,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",wttype="Beran",hlimit=0.1,id=id,index = 1)$res
+ipcwlsPIC::picpenwls(L=L,R=R,delta=delta,x=x,beta0 = c(1,1,1),type="wlse")$res
+ipcwlsPIC::picpenwls(L=L,R=R,delta=delta,x=x,beta0 = c(1,1,1),type="wlse",index = 1)$res
+ipcwlsPIC::picpenwls(L=L,R=R,delta=delta,x=x,beta0 = c(1,1,1),type="wlse",wttype="Beran",hlimit=0.1,id=id,index = 1)$res
 ```
 
 
@@ -165,13 +167,8 @@ ipcwlsPIC::picpenwls(U=L,V=R,delta=delta,x=x,beta0 = c(1,1),type="nonpenalty",wt
 
 * Ishwaran, H., U. B. Kogalur, E. H. Blackstone, and M. S. Lauer (2008). Random survival forests. The annals of applied statistics. 2 (3), 841–860.
 
-* Gorfine, M., Y. Goldberg, and Y. Ritov (2017). A quantile regression model for failure-time data with time-
-dependent covariates. Biostatistics. 18 (1), 132–146.
+* Pak, D., Langohr, K., Ning, J., Cort ́es Mart ́ınez, J., G ́omez Melis, G., and Shen, Y. (2020). Modeling the coronavirus disease 2019 incubation period: impact on quarantine policy. Mathematics, 8(9):1631.
 
-* Pan, C. (2021). 
-PICBayes: Bayesian Models for Partly Interval-Censored Data. R package. 
-https://CRAN.R-project.org/package=PICBayes.
-
-* Kim, Y., Choi, T. (2023+). 
-Inverse weighted linear regression with partially interval-censored data.
-*Submitted to JKSS*.
+* Kim, Y. (2024+). 
+On weighted-least squares regression with doubly interval-censored COVID-19 study.
+*Submitted to BMC*.
