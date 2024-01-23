@@ -73,6 +73,7 @@ ipcwlsPIC::picpenwls(L=L,R=R,delta=delta,x=x,beta0 = c(1,1,1),type="wlse",wttype
 PICBayes: Bayesian Models for Partly Interval-Censored Data. R package. 
 https://CRAN.R-project.org/package=PICBayes.
 
-* Kim, Y., Choi, S. (2023+). 
-Kim, Y., Choi, T. (2023+). On weighted-least squares regression with partially interval-censored data.
-*Scheduled to aaa*.
+* Pak, D., Langohr, K., Ning, J., Cort ́es Mart ́ınez, J., G ́omez Melis, G., and Shen, Y. (2020). Modeling the coronavirus disease 2019 incubation period: impact on quarantine policy. Mathematics, 8(9):1631.
+
+* Kim et al., (2024+). On weighted-least squares regression with doubly interval-censored COVID-19 study.
+*Scheduled to BMC*.
